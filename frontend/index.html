@@ -3,93 +3,235 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>HotpotQA ArangoDB Web</title>
+    <title>HotpotQA Evidence Workbench</title>
     <link rel="stylesheet" href="style.css" />
-    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+    <script src="vendor/lucide.min.js" defer></script>
     <script src="config.js"></script>
   </head>
   <body>
-    <header class="topbar">
-      <div>
-        <p class="eyebrow">ArangoDB Multi-hop QA</p>
-        <h1>HotpotQA Evidence Explorer</h1>
+    <header class="app-header">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">
+          <span></span><span></span><span></span>
+        </div>
+        <div>
+          <h1>HotpotQA Evidence Workbench</h1>
+          <p>ArangoDB multi-hop evidence explorer</p>
+        </div>
       </div>
-      <div class="status" id="healthStatus">checking backend</div>
+
+      <section class="header-metrics" aria-label="数据库状态">
+        <div class="status-pill" id="healthStatus" aria-live="polite">
+          <span class="status-dot pending"></span>
+          <span>
+            <strong>检查后端</strong>
+            <small>waiting</small>
+          </span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-icon" aria-hidden="true">Q</span>
+          <small>Questions</small>
+          <strong id="questionsCount">-</strong>
+        </div>
+        <div class="metric-card">
+          <span class="metric-icon" aria-hidden="true">P</span>
+          <small>Pages</small>
+          <strong id="pagesCount">-</strong>
+        </div>
+        <div class="metric-card">
+          <span class="metric-icon" aria-hidden="true">S</span>
+          <small>Sentences</small>
+          <strong id="sentencesCount">-</strong>
+        </div>
+        <div class="metric-card">
+          <span class="metric-icon" aria-hidden="true">C</span>
+          <small>Clusters</small>
+          <strong id="clustersCount">-</strong>
+        </div>
+      </section>
+
+      <form id="apiForm" class="api-box" aria-label="后端 API 配置">
+        <label for="apiBase">API Base</label>
+        <input id="apiBase" name="apiBase" placeholder="https://your-api.example.com" autocomplete="off" />
+        <button type="submit" aria-label="保存 API 地址" title="保存 API 地址">
+          <i data-lucide="save"></i>
+          <span>保存</span>
+        </button>
+      </form>
     </header>
 
-    <main class="shell">
-      <section class="workspace">
-        <aside class="search-pane">
-          <form id="searchForm" class="search-form">
-            <label for="keyword">检索问题或答案</label>
-            <div class="search-line">
-              <input id="keyword" name="keyword" value="nationality" autocomplete="off" />
-              <button type="submit" title="搜索"><i data-lucide="search"></i></button>
-            </div>
-            <div class="filters">
-              <select id="typeFilter" aria-label="题型">
-                <option value="">全部题型</option>
+    <main class="workbench">
+      <aside class="search-panel surface" aria-label="搜索与筛选">
+        <div class="panel-head">
+          <div>
+            <p class="eyebrow">Search</p>
+            <h2>搜索与筛选</h2>
+          </div>
+          <button id="clearSearch" class="icon-btn ghost" type="button" aria-label="清空筛选" title="清空筛选">
+            <i data-lucide="rotate-ccw"></i>
+          </button>
+        </div>
+
+        <form id="searchForm" class="search-form">
+          <label for="keyword">关键词（问题或答案）</label>
+          <div class="search-row">
+            <i data-lucide="search" aria-hidden="true"></i>
+            <input id="keyword" name="keyword" value="nationality" autocomplete="off" />
+            <button id="clearKeyword" class="inline-clear" type="button" aria-label="清空关键词" title="清空关键词">
+              <i data-lucide="x"></i>
+            </button>
+          </div>
+
+          <div class="filter-grid">
+            <label>
+              <span>类型</span>
+              <select id="typeFilter" name="type">
+                <option value="">全部类型</option>
                 <option value="bridge">bridge</option>
                 <option value="comparison">comparison</option>
               </select>
-              <select id="levelFilter" aria-label="难度">
+            </label>
+            <label>
+              <span>难度</span>
+              <select id="levelFilter" name="level">
                 <option value="">全部难度</option>
                 <option value="easy">easy</option>
                 <option value="medium">medium</option>
                 <option value="hard">hard</option>
               </select>
-            </div>
-          </form>
-          <div class="result-head">
-            <span>检索结果</span>
-            <strong id="resultCount">0</strong>
+            </label>
+            <label>
+              <span>数据集</span>
+              <select id="splitFilter" name="split">
+                <option value="">全部 split</option>
+                <option value="train">train</option>
+                <option value="validation">validation</option>
+                <option value="test">test</option>
+              </select>
+            </label>
+            <label>
+              <span>结果数量</span>
+              <select id="limitFilter" name="limit">
+                <option value="20">20</option>
+                <option value="30" selected>30</option>
+                <option value="50">50</option>
+                <option value="80">80</option>
+              </select>
+            </label>
           </div>
-          <div id="results" class="results"></div>
-        </aside>
 
-        <section class="graph-pane">
-          <div class="panel-title">
-            <div>
-              <p class="eyebrow">multi-hop path</p>
-              <h2 id="questionTitle">选择一个问题查看支持事实路径</h2>
-            </div>
-            <button id="fitGraph" type="button" title="重绘图谱"><i data-lucide="refresh-cw"></i></button>
+          <button class="primary-action" type="submit">
+            <i data-lucide="search"></i>
+            <span>搜索</span>
+          </button>
+        </form>
+
+        <div class="result-head">
+          <strong>搜索结果</strong>
+          <span><b id="resultCount">0</b> 条</span>
+        </div>
+        <div id="results" class="results" aria-live="polite"></div>
+      </aside>
+
+      <section class="graph-panel surface" aria-label="多跳证据路径图">
+        <div class="graph-toolbar">
+          <div>
+            <p class="eyebrow">Multi-hop Path</p>
+            <h2 id="graphTitle">多跳证据路径图</h2>
           </div>
-          <div id="graph" class="graph"></div>
-          <div id="supportFacts" class="support-list"></div>
-        </section>
+          <div class="toolbar-actions">
+            <button id="fitGraph" class="tool-btn" type="button" aria-label="适应视图" title="适应视图">
+              <i data-lucide="scan"></i>
+              <span>适应视图</span>
+            </button>
+            <button id="toggleLabels" class="tool-btn" type="button" aria-pressed="true" aria-label="显示或隐藏边标签" title="显示或隐藏边标签">
+              <i data-lucide="tag"></i>
+              <span>边标签</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="legend" aria-label="图例">
+          <span><i class="node-key question"></i>Question</span>
+          <span><i class="node-key answer"></i>Answer</span>
+          <span><i class="node-key page"></i>Page</span>
+          <span><i class="node-key sentence"></i>Sentence / Support</span>
+          <span><i class="line-key solid"></i>support / answer</span>
+          <span><i class="line-key dashed"></i>context / co-support</span>
+        </div>
+
+        <div id="graphCanvas" class="graph-canvas" role="img" aria-label="HotpotQA 多跳证据图"></div>
       </section>
 
-      <section class="lower-grid">
-        <section class="cluster-pane">
-          <div class="panel-title">
-            <div>
-              <p class="eyebrow">simple clustering</p>
-              <h2>聚类结果</h2>
-            </div>
-            <button id="reloadClusters" type="button" title="刷新聚类"><i data-lucide="rotate-cw"></i></button>
+      <aside class="inspector surface" aria-label="证据详情">
+        <div class="panel-head compact">
+          <div>
+            <p class="eyebrow">Inspector</p>
+            <h2>证据详情（选中问题）</h2>
           </div>
-          <div id="clusters" class="clusters"></div>
+          <span id="selectedState" class="tiny-chip">未选择</span>
+        </div>
+
+        <section class="inspector-section">
+          <h3>问题信息</h3>
+          <dl id="questionMeta" class="meta-grid"></dl>
         </section>
 
-        <section class="stats-pane">
-          <div class="panel-title">
+        <section class="answer-box">
+          <span>答案</span>
+          <strong id="answerText">-</strong>
+        </section>
+
+        <section class="inspector-section">
+          <h3>支持事实（按 rank）</h3>
+          <div id="supportFacts" class="support-list"></div>
+        </section>
+
+        <section class="inspector-section">
+          <h3>上下文页面</h3>
+          <ul id="contextPages" class="context-list"></ul>
+        </section>
+
+        <section class="inspector-section">
+          <h3>聚类信息</h3>
+          <div id="clusterInfo" class="cluster-info"></div>
+        </section>
+      </aside>
+
+      <section class="bottom-panel surface" aria-label="聚类与统计">
+        <div class="cluster-browser">
+          <div class="panel-head compact">
             <div>
-              <p class="eyebrow">distribution</p>
-              <h2>数据统计</h2>
+              <p class="eyebrow">Top Clusters</p>
+              <h2>聚类浏览</h2>
+            </div>
+            <button id="reloadClusters" class="icon-btn ghost" type="button" aria-label="刷新聚类" title="刷新聚类">
+              <i data-lucide="refresh-cw"></i>
+            </button>
+          </div>
+          <div id="clusters" class="clusters"></div>
+        </div>
+
+        <div class="stats-browser">
+          <div class="panel-head compact">
+            <div>
+              <p class="eyebrow">Distribution</p>
+              <h2>数据分布概览</h2>
             </div>
           </div>
-          <div class="bars" id="stats"></div>
-        </section>
+          <div id="stats" class="stats-grid"></div>
+        </div>
       </section>
     </main>
 
+    <div id="toastHost" class="toast-host" aria-live="polite"></div>
+
     <template id="resultTemplate">
       <button class="result-card" type="button">
-        <span class="meta"></span>
-        <strong></strong>
-        <small></small>
+        <span class="result-status" aria-hidden="true"></span>
+        <span class="result-question"></span>
+        <span class="result-answer"></span>
+        <span class="result-tags"></span>
       </button>
     </template>
 
