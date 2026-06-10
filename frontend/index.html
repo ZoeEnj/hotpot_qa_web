@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>HotpotQA ArangoDB Web</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+    <script src="config.js"></script>
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">ArangoDB Multi-hop QA</p>
+        <h1>HotpotQA Evidence Explorer</h1>
+      </div>
+      <div class="status" id="healthStatus">checking backend</div>
+    </header>
+
+    <main class="shell">
+      <section class="workspace">
+        <aside class="search-pane">
+          <form id="searchForm" class="search-form">
+            <label for="keyword">检索问题或答案</label>
+            <div class="search-line">
+              <input id="keyword" name="keyword" value="nationality" autocomplete="off" />
+              <button type="submit" title="搜索"><i data-lucide="search"></i></button>
+            </div>
+            <div class="filters">
+              <select id="typeFilter" aria-label="题型">
+                <option value="">全部题型</option>
+                <option value="bridge">bridge</option>
+                <option value="comparison">comparison</option>
+              </select>
+              <select id="levelFilter" aria-label="难度">
+                <option value="">全部难度</option>
+                <option value="easy">easy</option>
+                <option value="medium">medium</option>
+                <option value="hard">hard</option>
+              </select>
+            </div>
+          </form>
+          <div class="result-head">
+            <span>检索结果</span>
+            <strong id="resultCount">0</strong>
+          </div>
+          <div id="results" class="results"></div>
+        </aside>
+
+        <section class="graph-pane">
+          <div class="panel-title">
+            <div>
+              <p class="eyebrow">multi-hop path</p>
+              <h2 id="questionTitle">选择一个问题查看支持事实路径</h2>
+            </div>
+            <button id="fitGraph" type="button" title="重绘图谱"><i data-lucide="refresh-cw"></i></button>
+          </div>
+          <div id="graph" class="graph"></div>
+          <div id="supportFacts" class="support-list"></div>
+        </section>
+      </section>
+
+      <section class="lower-grid">
+        <section class="cluster-pane">
+          <div class="panel-title">
+            <div>
+              <p class="eyebrow">simple clustering</p>
+              <h2>聚类结果</h2>
+            </div>
+            <button id="reloadClusters" type="button" title="刷新聚类"><i data-lucide="rotate-cw"></i></button>
+          </div>
+          <div id="clusters" class="clusters"></div>
+        </section>
+
+        <section class="stats-pane">
+          <div class="panel-title">
+            <div>
+              <p class="eyebrow">distribution</p>
+              <h2>数据统计</h2>
+            </div>
+          </div>
+          <div class="bars" id="stats"></div>
+        </section>
+      </section>
+    </main>
+
+    <template id="resultTemplate">
+      <button class="result-card" type="button">
+        <span class="meta"></span>
+        <strong></strong>
+        <small></small>
+      </button>
+    </template>
+
+    <script src="app.js"></script>
+  </body>
+</html>
