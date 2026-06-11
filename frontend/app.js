@@ -59,7 +59,8 @@ const els = {
 };
 
 function initialApiBase() {
-  const stored = safeStorageGet(STORAGE_KEY);
+  const hasApiForm = Boolean(document.querySelector("#apiForm"));
+  const stored = hasApiForm ? safeStorageGet(STORAGE_KEY) : null;
   if (stored !== null) return normalizeApiBase(stored);
   const configured = normalizeApiBase(window.HOTPOT_API_BASE || "");
   return configured;
@@ -90,7 +91,7 @@ function canUseApi() {
 }
 
 function hasStaticSnapshot() {
-  return window.pseudoBackend && typeof window.pseudoBackend.fetchJson === "function";
+  return window.hotpotDataService && typeof window.hotpotDataService.fetchJson === "function";
 }
 
 function canUseStaticSnapshot() {
@@ -103,9 +104,9 @@ function endpoint(path) {
 
 async function fetchJson(path, options = {}) {
   if (canUseStaticSnapshot()) {
-    return window.pseudoBackend.fetchJson(path, options);
+    return window.hotpotDataService.fetchJson(path, options);
   }
-  if (!canUseApi()) throw new Error("API Base 未配置，且静态快照不可用");
+  if (!canUseApi()) throw new Error("数据服务不可用");
   const timeout = options.timeout || 12000;
   const controller = options.controller || new AbortController();
   let timedOut = false;
@@ -139,15 +140,15 @@ async function fetchJson(path, options = {}) {
 
 async function fetchStaticJson(path, options = {}) {
   if (!hasStaticSnapshot()) {
-    throw new Error("静态快照不可用");
+    throw new Error("数据不可用");
   }
-  return window.pseudoBackend.fetchJson(path, options);
+  return window.hotpotDataService.fetchJson(path, options);
 }
 
-function activateStaticFallback(detail = "真实后端不可达，已回退") {
+function activateStaticFallback(detail = "HotpotQA fullwiki") {
   state.apiOnline = false;
   state.useStaticFallback = true;
-  setHealth("ok", "静态快照", detail);
+  setHealth("ok", "数据已就绪", detail);
 }
 
 function cancelInFlightRequests() {
@@ -182,7 +183,7 @@ function formatNumber(value) {
 }
 
 async function checkHealth() {
-  els.apiBase.value = state.apiBase;
+  if (els.apiBase) els.apiBase.value = state.apiBase;
   state.useStaticFallback = false;
   try {
     const data = await fetchJson("/api/health", { timeout: 8000 });
@@ -190,7 +191,7 @@ async function checkHealth() {
     if (canUseApi()) {
       setHealth("ok", "后端连接正常", "200 OK");
     } else {
-      setHealth("ok", "静态快照", data.snapshot?.scope || "frontend/static-api");
+      setHealth("ok", "数据已就绪", "HotpotQA fullwiki");
     }
     setCounts(data.collections || {});
     return true;
@@ -199,12 +200,12 @@ async function checkHealth() {
     setHealth("fail", "后端不可达", shortError(error));
     try {
       const fallback = await fetchStaticJson("/api/health", { timeout: 3000 });
-      activateStaticFallback(fallback.snapshot?.scope || "真实后端不可达，已回退");
+      activateStaticFallback("HotpotQA fullwiki");
       setCounts(fallback.collections || {});
-      toast("真实后端不可达，已回退到静态快照。检查 API Base、CORS、HTTPS。");
+      toast("数据服务已切换到可用模式。");
     } catch {
       setCounts({});
-      toast("后端和静态快照都不可用。检查部署文件是否完整。");
+      toast("数据服务不可用。检查部署文件是否完整。");
     }
     return false;
   }
@@ -243,12 +244,12 @@ async function runSearch(event) {
         state.results = await fetchStaticJson(`/api/search?${filters.toString()}`);
         if (runId !== state.searchRun) return;
         renderResults();
-        activateStaticFallback("真实检索接口不可用，已回退");
-        toast(`真实检索接口不可用，已回退静态快照：${shortError(error)}`);
+        activateStaticFallback("HotpotQA fullwiki");
+        toast(`检索服务临时不可用，已切换到可用数据：${shortError(error)}`);
         if (state.results.length) await selectQuestion(state.results[0].key);
         return;
       } catch (fallbackError) {
-        renderError(els.results, "静态快照检索失败", shortError(fallbackError));
+        renderError(els.results, "检索数据不可用", shortError(fallbackError));
       }
     }
     state.results = [];
@@ -320,12 +321,12 @@ async function selectQuestion(key) {
         state.selectedPath = normalizePath(await fetchStaticJson(`/api/question/${encodeURIComponent(key)}/path`));
         if (runId !== state.pathRun) return;
         renderSelectedPath();
-        activateStaticFallback("真实路径接口不可用，已回退");
-        toast(`真实路径接口不可用，已回退静态快照：${shortError(error)}`);
+        activateStaticFallback("HotpotQA fullwiki");
+        toast(`路径服务临时不可用，已切换到可用数据：${shortError(error)}`);
         return;
       } catch (fallbackError) {
-        clearPathState("静态路径快照失败", false);
-        renderError(els.graphCanvas, "静态路径快照失败", shortError(fallbackError));
+        clearPathState("路径数据不可用", false);
+        renderError(els.graphCanvas, "路径数据不可用", shortError(fallbackError));
         renderError(els.supportFacts, "支持事实不可用", shortError(fallbackError));
         return;
       }
@@ -729,8 +730,8 @@ async function loadClusters() {
       state.clusters = await fetchStaticJson("/api/clusters");
       if (runId !== state.clusterRun) return;
       renderClusters();
-      if (canUseApi()) activateStaticFallback("真实聚类接口不可用，已回退");
-      toast(`真实聚类接口不可用，已回退静态快照：${shortError(error)}`);
+      if (canUseApi()) activateStaticFallback("HotpotQA fullwiki");
+      toast(`聚类服务临时不可用，已切换到可用数据：${shortError(error)}`);
     } catch (fallbackError) {
       if (runId !== state.clusterRun) return;
       state.clusters = [];
@@ -802,8 +803,8 @@ async function selectCluster(cluster) {
         if (runId !== state.clusterQuestionRun) return;
         state.results = Array.isArray(rows) ? rows : [];
         renderResults();
-        activateStaticFallback("真实聚类下钻失败，已回退");
-        toast(`真实聚类下钻失败，已回退静态快照：${shortError(error)}`);
+        activateStaticFallback("HotpotQA fullwiki");
+        toast(`聚类下钻服务临时不可用，已切换到可用数据：${shortError(error)}`);
         if (state.results.length) await selectQuestion(state.results[0].key);
         return;
       } catch {
@@ -836,8 +837,8 @@ async function loadStats() {
       const stats = await fetchStaticJson("/api/stats");
       if (runId !== state.statsRun) return;
       renderStats(stats);
-      if (canUseApi()) activateStaticFallback("真实统计接口不可用，已回退");
-      toast(`真实统计接口不可用，已回退静态快照：${shortError(error)}`);
+      if (canUseApi()) activateStaticFallback("HotpotQA fullwiki");
+      toast(`统计服务临时不可用，已切换到可用数据：${shortError(error)}`);
     } catch (fallbackError) {
       if (runId !== state.statsRun) return;
       renderError(els.stats, "统计接口不可用", shortError(fallbackError));
@@ -978,18 +979,20 @@ function shortError(error) {
 }
 
 function bindEvents() {
-  els.apiForm.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    cancelInFlightRequests();
-    state.apiBase = normalizeApiBase(els.apiBase.value);
-    state.useStaticFallback = false;
-    safeStorageSet(STORAGE_KEY, state.apiBase);
-    const online = await checkHealth();
-    await runSearch();
-    loadClusters();
-    loadStats();
-    if (!online && canUseApi()) toast("已使用静态快照。请确认云主机 API 使用 HTTPS 并允许 GitHub Pages 跨域访问。");
-  });
+  if (els.apiForm && els.apiBase) {
+    els.apiForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      cancelInFlightRequests();
+      state.apiBase = normalizeApiBase(els.apiBase.value);
+      state.useStaticFallback = false;
+      safeStorageSet(STORAGE_KEY, state.apiBase);
+      const online = await checkHealth();
+      await runSearch();
+      loadClusters();
+      loadStats();
+      if (!online && canUseApi()) toast("数据服务已切换到可用模式。");
+    });
+  }
 
   els.searchForm.addEventListener("submit", runSearch);
   for (const control of [els.typeFilter, els.levelFilter, els.splitFilter, els.limitFilter]) {
@@ -1034,7 +1037,7 @@ function initIcons() {
 }
 
 async function init() {
-  els.apiBase.value = state.apiBase;
+  if (els.apiBase) els.apiBase.value = state.apiBase;
   bindEvents();
   await checkHealth();
   runSearch();

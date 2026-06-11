@@ -2,7 +2,7 @@
 
 这是 HotpotQA + ArangoDB 多跳证据查询与可视化网页项目。项目支持两种运行方式：
 
-- `frontend/`：托管到 GitHub Pages 的静态前端。默认使用 `frontend/static-api/` 中的静态 JSON 快照和 `pseudoBackend.js`，可直接公开演示搜索、多跳证据路径、聚类浏览、统计分布和 SVG 图可视化。
+- `frontend/`：托管到 GitHub Pages 的静态前端。默认使用 `frontend/data/` 中的 JSON 数据包和 `dataService.js`，可直接公开演示搜索、多跳证据路径、聚类浏览、统计分布和 SVG 图可视化。
 - `backend/`：部署在华为云主机内网的 Flask API。它连接 ArangoDB，提供真实数据库查询接口。只有后端具备公网 HTTPS 域名并配置 CORS 后，GitHub Pages 前端才需要填写 API Base。
 
 ## 在线访问
@@ -13,7 +13,7 @@ GitHub Pages 地址：
 https://zoeenj.github.io/hotpot_qa_web/
 ```
 
-页面右上角 `API Base` 留空时，前端会自动使用静态快照模式。若要连接真实后端，填写类似下面的 HTTPS 地址：
+默认公开页面使用随页面发布的数据包。若要连接真实后端，可在 `frontend/config.js` 中配置类似下面的 HTTPS 地址：
 
 ```text
 https://<your-api-domain>
@@ -57,11 +57,11 @@ python app.py
 gunicorn -w 2 -b 0.0.0.0:5000 app:app
 ```
 
-如果后端只在华为云主机内网可访问，GitHub Pages 页面应保持 API Base 为空，使用静态快照演示。
+如果后端只在华为云主机内网可访问，GitHub Pages 页面保持 `window.HOTPOT_API_BASE = ""` 即可。
 
 ## 静态快照更新
 
-静态快照由真实 HotpotQA parquet 数据导出，生成文件位于 `frontend/static-api/`：
+静态快照由真实 HotpotQA parquet 数据导出，生成文件位于 `frontend/data/`：
 
 ```bash
 cd hotpot_qa_web

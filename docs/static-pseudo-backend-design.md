@@ -13,7 +13,7 @@
 公开演示链路为：
 
 ```text
-GitHub Pages -> frontend/pseudoBackend.js -> frontend/static-api/*.json
+GitHub Pages -> frontend/dataService.js -> frontend/data/*.json
 ```
 
 ## 设计目标
@@ -33,7 +33,7 @@ API Base 为空时，前端使用 `pseudoBackend.fetchJson(path, options)`。
 静态文件位于：
 
 ```text
-frontend/static-api/
+frontend/data/
   manifest.json
   health.json
   stats.json
@@ -93,4 +93,3 @@ https://<api-domain>/api/question/<qid>/path
 - 浏览器执行 AQL。
 - 前端实现完整 ArangoDB。
 - 静态演示支持全量实时检索。
-

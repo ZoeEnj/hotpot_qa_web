@@ -23,7 +23,7 @@ python scripts/export_static_snapshot.py --input /path/to/hotpot_qa/fullwiki/tra
 输出：
 
 ```text
-frontend/static-api/
+frontend/data/
 ```
 
 ## 2. 前端接入
@@ -31,7 +31,7 @@ frontend/static-api/
 新增：
 
 ```text
-frontend/pseudoBackend.js
+frontend/dataService.js
 ```
 
 修改：
@@ -95,6 +95,6 @@ curl "http://127.0.0.1:5000/api/search?q=nationality"
 
 ```bash
 node --check frontend/app.js
-node --check frontend/pseudoBackend.js
+node --check frontend/dataService.js
 python -m py_compile backend/app.py backend/wsgi.py scripts/export_static_snapshot.py
 ```

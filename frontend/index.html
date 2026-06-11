@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="style.css" />
     <script src="vendor/lucide.min.js" defer></script>
     <script src="config.js"></script>
-    <script src="pseudoBackend.js"></script>
+    <script src="dataService.js"></script>
   </head>
   <body>
     <header class="app-header">
@@ -51,14 +51,6 @@
         </div>
       </section>
 
-      <form id="apiForm" class="api-box" aria-label="后端 API 配置">
-        <label for="apiBase">API Base</label>
-        <input id="apiBase" name="apiBase" placeholder="https://your-api.example.com" autocomplete="off" />
-        <button type="submit" aria-label="保存 API 地址" title="保存 API 地址">
-          <i data-lucide="save"></i>
-          <span>保存</span>
-        </button>
-      </form>
     </header>
 
     <main class="workbench">

@@ -18,7 +18,7 @@ import pyarrow.parquet as pq
 
 
 DEFAULT_INPUT = Path("../hotpot_qa/fullwiki/train-00000-of-00002.parquet")
-DEFAULT_OUTPUT = Path("frontend/static-api")
+DEFAULT_OUTPUT = Path("frontend/data")
 DEFAULT_SAMPLE_SIZE = 600
 
 STOPWORDS = {

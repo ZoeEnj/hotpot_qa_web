@@ -1,5 +1,5 @@
 (function () {
-  const STATIC_API_BASE = "static-api/";
+  const DATA_BASE = "data/";
   const cache = new Map();
 
   function abortError() {
@@ -43,12 +43,12 @@
   async function readJson(filename, signal) {
     assertNotAborted(signal);
     if (cache.has(filename)) return clone(cache.get(filename));
-    const response = await fetch(`${STATIC_API_BASE}${filename}`, {
+    const response = await fetch(`${DATA_BASE}${filename}`, {
       signal,
       headers: { Accept: "application/json" },
     });
     if (!response.ok) {
-      throw new Error(`static snapshot missing ${filename}: ${response.status}`);
+      throw new Error(`data file missing ${filename}: ${response.status}`);
     }
     const data = await response.json();
     cache.set(filename, data);
@@ -90,7 +90,7 @@
       const key = decodeURIComponent(pathMatch[1]);
       const paths = await readJson("paths.json", signal);
       if (paths[key]) return paths[key];
-      const error = new Error(`static snapshot does not include question path: ${key}`);
+      const error = new Error(`data package does not include question path: ${key}`);
       error.status = 404;
       error.type = "SnapshotMiss";
       throw error;
@@ -112,14 +112,14 @@
       return readJson("stats.json", signal);
     }
 
-    const error = new Error(`pseudoBackend route not found: ${url.pathname}`);
+    const error = new Error(`data route not found: ${url.pathname}`);
     error.status = 404;
     error.type = "NotFound";
     throw error;
   }
 
-  window.pseudoBackend = {
-    mode: "static_snapshot",
+  window.hotpotDataService = {
+    mode: "data_package",
     fetchJson,
   };
 })();

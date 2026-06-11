@@ -1,3 +1,2 @@
-// GitHub Pages 部署时建议填写 HTTPS 后端地址，避免 mixed content。
-// 也可以在页面右上角 API Base 输入框中临时设置，值会保存在 localStorage。
+// 可选：需要连接自有 HTTPS 数据服务时填写；留空则使用随页面发布的数据包。
 window.HOTPOT_API_BASE = "";
