@@ -1,75 +1,83 @@
 # HotpotQA Evidence Workbench
 
-这是 HotpotQA + ArangoDB 多跳证据查询与可视化网页项目。项目支持两种运行方式：
+这是一个基于 HotpotQA、ArangoDB 和 Flask API 的多跳问答证据检索与可视化网页项目。前端页面托管在 GitHub Pages，后端服务部署在华为云主机，用于连接 ArangoDB 并提供数据查询接口。
 
-- `frontend/`：托管到 GitHub Pages 的静态前端。默认使用 `frontend/data/` 中的 JSON 数据包和 `dataService.js`，可直接公开演示搜索、多跳证据路径、聚类浏览、统计分布和 SVG 图可视化。
-- `backend/`：部署在华为云主机内网的 Flask API。它连接 ArangoDB，提供真实数据库查询接口。只有后端具备公网 HTTPS 域名并配置 CORS 后，GitHub Pages 前端才需要填写 API Base。
+## 项目结构
 
-## 在线访问
+- `backend/`：Flask 后端服务，负责连接 ArangoDB 并提供查询接口。
+- `frontend/`：GitHub Pages 托管的前端页面，包含搜索、多跳路径展示、聚类浏览、统计分布和 SVG 可视化。
+- `.github/workflows/pages.yml`：GitHub Pages 自动部署工作流。
 
-GitHub Pages 地址：
+## 启动顺序
 
-```text
-https://zoeenj.github.io/hotpot_qa_web/
-```
+完整运行时建议先启动后端，再打开或发布前端页面。后端负责提供 HotpotQA 数据查询能力，前端负责展示检索结果和可视化图谱。
 
-默认公开页面使用随页面发布的数据包。若要连接真实后端，可在 `frontend/config.js` 中配置类似下面的 HTTPS 地址：
+## 后端启动
 
-```text
-https://<your-api-domain>
-```
-
-不要填写 ArangoDB 的 `8529` 地址。前端连接的是 Flask API，不是直接连接 ArangoDB。
-
-## 前端本地预览
-
-```bash
-cd hotpot_qa_web/frontend
-python3 -m http.server 8133
-```
-
-然后访问：
-
-```text
-http://127.0.0.1:8133/
-```
-
-## 后端快速启动
+在华为云主机上进入后端目录：
 
 ```bash
 cd ~/hotpot_qa_web/backend
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
+```
 
+配置 ArangoDB 连接参数：
+
+```bash
 export ARANGO_HOST="http://127.0.0.1:8529"
 export ARANGO_DB="hotpotqa_arango"
 export ARANGO_USER="web_hotpot"
 export ARANGO_PASSWORD="your-readonly-password"
 export CORS_ORIGINS="https://zoeenj.github.io"
+```
 
+开发方式启动：
+
+```bash
 python app.py
 ```
 
-生产环境可使用：
+生产方式启动：
 
 ```bash
 gunicorn -w 2 -b 0.0.0.0:5000 app:app
 ```
 
-如果后端只在华为云主机内网可访问，GitHub Pages 页面保持 `window.HOTPOT_API_BASE = ""` 即可。
-
-## 静态快照更新
-
-静态快照由真实 HotpotQA parquet 数据导出，生成文件位于 `frontend/data/`：
+后端健康检查：
 
 ```bash
-cd hotpot_qa_web
-python scripts/export_static_snapshot.py --sample-size 600
+curl http://127.0.0.1:5000/api/health
 ```
 
-快照用于公开演示，不替代 ArangoDB 全量查询。实验报告中应说明：真实数据管理和 AQL 查询在华为云主机的 ArangoDB + Flask 后端完成；GitHub Pages 版本使用预导出的样例快照模拟相同 API 返回结构。
+## 前端本地预览
 
-## GitHub Pages 部署
+后端启动后，可以在本地预览前端页面：
 
-仓库包含 `.github/workflows/pages.yml`。推送到 `main` 后，工作流会把 `frontend/` 作为 Pages 产物上传并发布。
+```bash
+cd hotpot_qa_web/frontend
+python3 -m http.server 8133
+```
+
+浏览器访问：
+
+```text
+http://127.0.0.1:8133/
+```
+
+## GitHub Pages 托管
+
+本仓库已经配置 GitHub Actions。推送到 `main` 分支后，工作流会自动将 `frontend/` 目录发布到 GitHub Pages。
+
+访问地址：
+
+```text
+https://zoeenj.github.io/hotpot_qa_web/
+```
+
+## 注意事项
+
+- 不要将虚拟环境、缓存、日志、压缩包、实验报告或设计稿提交到仓库。
+- 前端托管目录为 `frontend/`，GitHub Pages 工作流只上传该目录。
+- 后端连接的是 Flask API，不是直接让前端连接 ArangoDB 的 `8529` 端口。

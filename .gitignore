@@ -10,7 +10,13 @@ backend/.env
 .env
 scripts/__pycache__/
 scripts/*.pyc
+scripts/
+docs/
 design/
+*.docx
+*.pptx
+*.xlsx
+*.pdf
 *.zip
 *.log
 *.pid
