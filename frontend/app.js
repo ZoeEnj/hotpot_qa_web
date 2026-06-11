@@ -1,125 +1,4 @@
-const DEMO_MODE_LABEL = "demo data";
 const STORAGE_KEY = "hotpot_api_base";
-
-const demo = {
-  health: {
-    status: "demo",
-    collections: {
-      questions: 192606,
-      pages: 5239,
-      sentences: 446122,
-      clusters: 128,
-    },
-  },
-  results: [
-    {
-      key: "demo_question_1",
-      orig_id: "5ad3a5e45542994a48eab92a",
-      split: "train",
-      question: "What is the nationality of the director of The Patriot?",
-      answer: "German",
-      type: "bridge",
-      level: "medium",
-      n_supporting_facts: 4,
-      n_context_pages: 3,
-    },
-    {
-      key: "demo_question_2",
-      orig_id: "demo_2",
-      split: "train",
-      question: "What country does the player who plays Harry Potter for Chelsea represent?",
-      answer: "England",
-      type: "bridge",
-      level: "medium",
-      n_supporting_facts: 4,
-      n_context_pages: 4,
-    },
-    {
-      key: "demo_question_3",
-      orig_id: "demo_3",
-      split: "validation",
-      question: "Which author wrote the book that inspired the movie Shrek?",
-      answer: "William Steig",
-      type: "bridge",
-      level: "easy",
-      n_supporting_facts: 3,
-      n_context_pages: 5,
-    },
-    {
-      key: "demo_question_4",
-      orig_id: "demo_4",
-      split: "train",
-      question: "Which city is the birthplace of the author of The Da Vinci Code?",
-      answer: "New York City",
-      type: "bridge",
-      level: "medium",
-      n_supporting_facts: 3,
-      n_context_pages: 4,
-    },
-  ],
-  path: {
-    question: {
-      key: "demo_question_1",
-      text: "What is the nationality of the director of The Patriot?",
-      answer: "German",
-      type: "bridge",
-      level: "medium",
-      orig_id: "5ad3a5e45542994a48eab92a",
-      split: "train",
-    },
-    nodes: [
-      { id: "q:demo_question_1", label: "Question", detail: "What is the nationality of the director of The Patriot?", kind: "question" },
-      { id: "p:patriot", label: "The Patriot (2000 film)", detail: "support page", kind: "page" },
-      { id: "p:roland", label: "Roland Emmerich", detail: "support page", kind: "page" },
-      { id: "p:germany", label: "Germany", detail: "context page", kind: "page" },
-      { id: "s:1", label: "S1", detail: "The Patriot is a 2000 historical war film.", kind: "sentence" },
-      { id: "s:2", label: "S2", detail: "It was directed by Roland Emmerich.", kind: "sentence" },
-      { id: "s:3", label: "S3", detail: "Roland Emmerich is a German film director.", kind: "sentence" },
-      { id: "s:4", label: "S4", detail: "Emmerich was born in Stuttgart, Germany.", kind: "sentence" },
-      { id: "a:demo_question_1", label: "Answer", detail: "German", kind: "answer" },
-    ],
-    edges: [
-      { source: "q:demo_question_1", target: "p:patriot", label: "context" },
-      { source: "q:demo_question_1", target: "p:roland", label: "context" },
-      { source: "q:demo_question_1", target: "p:germany", label: "context" },
-      { source: "p:patriot", target: "s:1", label: "support" },
-      { source: "p:patriot", target: "s:2", label: "support" },
-      { source: "p:roland", target: "s:3", label: "support" },
-      { source: "p:roland", target: "s:4", label: "support" },
-      { source: "p:patriot", target: "p:roland", label: "co-support" },
-      { source: "p:roland", target: "a:demo_question_1", label: "answer" },
-      { source: "p:germany", target: "a:demo_question_1", label: "answer" },
-    ],
-    support: [
-      { rank: 1, page_title: "The Patriot (2000 film)", sent_id: 0, sentence: "The Patriot is a 2000 historical war film directed by Roland Emmerich." },
-      { rank: 2, page_title: "The Patriot (2000 film)", sent_id: 1, sentence: "It was directed by Roland Emmerich." },
-      { rank: 3, page_title: "Roland Emmerich", sent_id: 0, sentence: "Roland Emmerich is a German film director, producer, and screenwriter." },
-      { rank: 4, page_title: "Roland Emmerich", sent_id: 3, sentence: "Emmerich was born in Stuttgart, Germany." },
-    ],
-    context: [
-      { rank: 1, page_key: "patriot", page_title: "The Patriot (2000 film)" },
-      { rank: 2, page_key: "roland", page_title: "Roland Emmerich" },
-      { rank: 3, page_key: "germany", page_title: "Germany" },
-    ],
-  },
-  clusters: [
-    { key: "cluster_12", cluster_id: "12", size: 2184, keywords: ["film", "director", "germany", "europe", "biography"], source: "kmeans" },
-    { key: "cluster_7", cluster_id: "7", size: 1736, keywords: ["book", "author", "novel", "writer", "literature"], source: "kmeans" },
-    { key: "cluster_3", cluster_id: "3", size: 1523, keywords: ["city", "born", "birthplace", "american", "state"], source: "kmeans" },
-    { key: "cluster_9", cluster_id: "9", size: 1287, keywords: ["sports", "team", "player", "league", "football"], source: "kmeans" },
-  ],
-  stats: {
-    by_type: [
-      { name: "bridge", value: 97842 },
-      { name: "comparison", value: 94764 },
-    ],
-    by_level: [
-      { name: "easy", value: 64912 },
-      { name: "medium", value: 74245 },
-      { name: "hard", value: 53449 },
-    ],
-  },
-};
 
 const state = {
   apiBase: initialApiBase(),
@@ -131,10 +10,17 @@ const state = {
   showLabels: true,
   graphZoom: 1,
   apiOnline: false,
+  useStaticFallback: false,
   searchRun: 0,
   pathRun: 0,
+  clusterRun: 0,
+  clusterQuestionRun: 0,
+  statsRun: 0,
   searchAbort: null,
   pathAbort: null,
+  clusterAbort: null,
+  clusterQuestionAbort: null,
+  statsAbort: null,
 };
 
 const els = {
@@ -176,11 +62,7 @@ function initialApiBase() {
   const stored = safeStorageGet(STORAGE_KEY);
   if (stored !== null) return normalizeApiBase(stored);
   const configured = normalizeApiBase(window.HOTPOT_API_BASE || "");
-  if (configured) return configured;
-  if (["localhost", "127.0.0.1", ""].includes(window.location.hostname)) {
-    return "http://127.0.0.1:5000";
-  }
-  return "";
+  return configured;
 }
 
 function normalizeApiBase(value) {
@@ -207,15 +89,30 @@ function canUseApi() {
   return Boolean(state.apiBase);
 }
 
+function hasStaticSnapshot() {
+  return window.pseudoBackend && typeof window.pseudoBackend.fetchJson === "function";
+}
+
+function canUseStaticSnapshot() {
+  return hasStaticSnapshot() && (!canUseApi() || state.useStaticFallback);
+}
+
 function endpoint(path) {
   return `${state.apiBase}${path}`;
 }
 
 async function fetchJson(path, options = {}) {
-  if (!canUseApi()) throw new Error("API Base 未配置");
+  if (canUseStaticSnapshot()) {
+    return window.pseudoBackend.fetchJson(path, options);
+  }
+  if (!canUseApi()) throw new Error("API Base 未配置，且静态快照不可用");
   const timeout = options.timeout || 12000;
   const controller = options.controller || new AbortController();
-  const timer = window.setTimeout(() => controller.abort(), timeout);
+  let timedOut = false;
+  const timer = window.setTimeout(() => {
+    timedOut = true;
+    controller.abort();
+  }, timeout);
   try {
     const response = await fetch(endpoint(path), {
       signal: controller.signal,
@@ -228,9 +125,40 @@ async function fetchJson(path, options = {}) {
       throw new Error(message);
     }
     return body;
+  } catch (error) {
+    if (timedOut && error.name === "AbortError") {
+      const timeoutError = new Error(`request timeout after ${timeout}ms`);
+      timeoutError.name = "TimeoutError";
+      throw timeoutError;
+    }
+    throw error;
   } finally {
     window.clearTimeout(timer);
   }
+}
+
+async function fetchStaticJson(path, options = {}) {
+  if (!hasStaticSnapshot()) {
+    throw new Error("静态快照不可用");
+  }
+  return window.pseudoBackend.fetchJson(path, options);
+}
+
+function activateStaticFallback(detail = "真实后端不可达，已回退") {
+  state.apiOnline = false;
+  state.useStaticFallback = true;
+  setHealth("ok", "静态快照", detail);
+}
+
+function cancelInFlightRequests() {
+  for (const controller of [state.searchAbort, state.pathAbort, state.clusterAbort, state.clusterQuestionAbort, state.statsAbort]) {
+    if (controller) controller.abort();
+  }
+  state.searchRun += 1;
+  state.pathRun += 1;
+  state.clusterRun += 1;
+  state.clusterQuestionRun += 1;
+  state.statsRun += 1;
 }
 
 function setHealth(status, title, detail) {
@@ -255,22 +183,29 @@ function formatNumber(value) {
 
 async function checkHealth() {
   els.apiBase.value = state.apiBase;
-  if (!canUseApi()) {
-    setHealth("fail", "未配置后端", DEMO_MODE_LABEL);
-    setCounts(demo.health.collections);
-    return false;
-  }
+  state.useStaticFallback = false;
   try {
     const data = await fetchJson("/api/health", { timeout: 8000 });
-    state.apiOnline = true;
-    setHealth("ok", "后端连接正常", "200 OK");
+    state.apiOnline = canUseApi();
+    if (canUseApi()) {
+      setHealth("ok", "后端连接正常", "200 OK");
+    } else {
+      setHealth("ok", "静态快照", data.snapshot?.scope || "frontend/static-api");
+    }
     setCounts(data.collections || {});
     return true;
   } catch (error) {
     state.apiOnline = false;
     setHealth("fail", "后端不可达", shortError(error));
-    setCounts(demo.health.collections);
-    toast("后端不可达，页面保留演示数据。检查 API Base、CORS、HTTPS。");
+    try {
+      const fallback = await fetchStaticJson("/api/health", { timeout: 3000 });
+      activateStaticFallback(fallback.snapshot?.scope || "真实后端不可达，已回退");
+      setCounts(fallback.collections || {});
+      toast("真实后端不可达，已回退到静态快照。检查 API Base、CORS、HTTPS。");
+    } catch {
+      setCounts({});
+      toast("后端和静态快照都不可用。检查部署文件是否完整。");
+    }
     return false;
   }
 }
@@ -279,6 +214,8 @@ async function runSearch(event) {
   if (event) event.preventDefault();
   const runId = ++state.searchRun;
   if (state.searchAbort) state.searchAbort.abort();
+  if (state.pathAbort) state.pathAbort.abort();
+  state.pathRun += 1;
   state.searchAbort = new AbortController();
 
   clearPathState("正在检索...");
@@ -287,9 +224,7 @@ async function runSearch(event) {
 
   const filters = getFilters();
   try {
-    const rows = canUseApi() && state.apiOnline
-      ? await fetchJson(`/api/search?${filters.toString()}`, { controller: state.searchAbort })
-      : await demoSearch(filters);
+    const rows = await fetchJson(`/api/search?${filters.toString()}`, { controller: state.searchAbort });
     if (runId !== state.searchRun) return;
     state.results = Array.isArray(rows) ? rows : [];
     renderResults();
@@ -304,11 +239,17 @@ async function runSearch(event) {
     if (runId !== state.searchRun) return;
     if (canUseApi()) {
       state.apiOnline = false;
-      state.results = await demoSearch(filters);
-      renderResults();
-      toast(`检索接口不可用，显示演示数据：${shortError(error)}`);
-      if (state.results.length) await selectQuestion(state.results[0].key);
-      return;
+      try {
+        state.results = await fetchStaticJson(`/api/search?${filters.toString()}`);
+        if (runId !== state.searchRun) return;
+        renderResults();
+        activateStaticFallback("真实检索接口不可用，已回退");
+        toast(`真实检索接口不可用，已回退静态快照：${shortError(error)}`);
+        if (state.results.length) await selectQuestion(state.results[0].key);
+        return;
+      } catch (fallbackError) {
+        renderError(els.results, "静态快照检索失败", shortError(fallbackError));
+      }
     }
     state.results = [];
     renderResults();
@@ -325,25 +266,6 @@ function getFilters() {
   params.set("split", els.splitFilter.value);
   params.set("limit", els.limitFilter.value);
   return params;
-}
-
-function demoSearch(params) {
-  const keyword = (params.get("q") || "").toLowerCase();
-  const type = params.get("type") || "";
-  const level = params.get("level") || "";
-  const split = params.get("split") || "";
-  const limit = clampNumber(params.get("limit"), 1, 100, 30);
-  const rows = demo.results
-    .filter((row) => !keyword || `${row.question} ${row.answer}`.toLowerCase().includes(keyword))
-    .filter((row) => !type || row.type === type)
-    .filter((row) => !level || row.level === level)
-    .filter((row) => !split || row.split === split)
-    .slice(0, limit);
-  return delay(rows, 180);
-}
-
-function delay(value, ms) {
-  return new Promise((resolve) => window.setTimeout(() => resolve(value), ms));
 }
 
 function renderResults() {
@@ -384,9 +306,7 @@ async function selectQuestion(key) {
   renderLoading(els.supportFacts, 3);
 
   try {
-    const data = canUseApi() && state.apiOnline
-      ? await fetchJson(`/api/question/${encodeURIComponent(key)}/path`, { controller: state.pathAbort })
-      : await demoPath(key);
+    const data = await fetchJson(`/api/question/${encodeURIComponent(key)}/path`, { controller: state.pathAbort });
     if (runId !== state.pathRun) return;
     state.selectedPath = normalizePath(data);
     state.graphZoom = 1;
@@ -396,19 +316,24 @@ async function selectQuestion(key) {
     if (runId !== state.pathRun) return;
     if (canUseApi()) {
       state.apiOnline = false;
-      state.selectedPath = normalizePath(await demoPath(key));
-      renderSelectedPath();
-      toast(`路径接口不可用，显示演示路径：${shortError(error)}`);
-      return;
+      try {
+        state.selectedPath = normalizePath(await fetchStaticJson(`/api/question/${encodeURIComponent(key)}/path`));
+        if (runId !== state.pathRun) return;
+        renderSelectedPath();
+        activateStaticFallback("真实路径接口不可用，已回退");
+        toast(`真实路径接口不可用，已回退静态快照：${shortError(error)}`);
+        return;
+      } catch (fallbackError) {
+        clearPathState("静态路径快照失败", false);
+        renderError(els.graphCanvas, "静态路径快照失败", shortError(fallbackError));
+        renderError(els.supportFacts, "支持事实不可用", shortError(fallbackError));
+        return;
+      }
     }
     clearPathState("路径查询失败");
     renderError(els.graphCanvas, "路径查询失败", shortError(error));
     renderError(els.supportFacts, "支持事实不可用", shortError(error));
   }
-}
-
-function demoPath() {
-  return delay(demo.path, 160);
 }
 
 function normalizePath(data) {
@@ -788,15 +713,30 @@ function applyGraphZoom() {
 }
 
 async function loadClusters() {
+  const runId = ++state.clusterRun;
+  if (state.clusterAbort) state.clusterAbort.abort();
+  state.clusterAbort = new AbortController();
   renderLoading(els.clusters, 3);
   try {
-    const rows = canUseApi() && state.apiOnline ? await fetchJson("/api/clusters") : await delay(demo.clusters, 150);
+    const rows = await fetchJson("/api/clusters", { controller: state.clusterAbort });
+    if (runId !== state.clusterRun) return;
     state.clusters = Array.isArray(rows) ? rows : [];
     renderClusters();
   } catch (error) {
-    state.clusters = demo.clusters;
-    renderClusters();
-    toast(`聚类接口不可用，显示演示聚类：${shortError(error)}`);
+    if (error.name === "AbortError") return;
+    if (runId !== state.clusterRun) return;
+    try {
+      state.clusters = await fetchStaticJson("/api/clusters");
+      if (runId !== state.clusterRun) return;
+      renderClusters();
+      if (canUseApi()) activateStaticFallback("真实聚类接口不可用，已回退");
+      toast(`真实聚类接口不可用，已回退静态快照：${shortError(error)}`);
+    } catch (fallbackError) {
+      if (runId !== state.clusterRun) return;
+      state.clusters = [];
+      renderClusters();
+      toast(`聚类接口不可用：${shortError(fallbackError)}`);
+    }
   }
 }
 
@@ -833,15 +773,18 @@ function renderClusters() {
 }
 
 async function selectCluster(cluster) {
+  const runId = ++state.clusterQuestionRun;
+  if (state.clusterQuestionAbort) state.clusterQuestionAbort.abort();
+  if (state.pathAbort) state.pathAbort.abort();
+  state.pathRun += 1;
+  state.clusterQuestionAbort = new AbortController();
   state.activeClusterKey = cluster.key;
   renderClusters();
+  clearPathState("正在加载聚类问题...");
   renderClusterInfo(cluster);
-  if (!canUseApi() || !state.apiOnline) {
-    toast(`已选择 Cluster ${safeText(cluster.cluster_id)}（演示数据）。`);
-    return;
-  }
   try {
-    const rows = await fetchJson(`/api/cluster/${encodeURIComponent(cluster.key)}/questions?limit=5`);
+    const rows = await fetchJson(`/api/cluster/${encodeURIComponent(cluster.key)}/questions?limit=5`, { controller: state.clusterQuestionAbort });
+    if (runId !== state.clusterQuestionRun) return;
     state.results = Array.isArray(rows) ? rows : [];
     renderResults();
     if (state.results.length) {
@@ -851,26 +794,55 @@ async function selectCluster(cluster) {
     }
     toast(`Cluster ${safeText(cluster.cluster_id)} 暂无可下钻样例。`);
   } catch (error) {
+    if (error.name === "AbortError") return;
+    if (runId !== state.clusterQuestionRun) return;
+    if (canUseApi()) {
+      try {
+        const rows = await fetchStaticJson(`/api/cluster/${encodeURIComponent(cluster.key)}/questions?limit=5`);
+        if (runId !== state.clusterQuestionRun) return;
+        state.results = Array.isArray(rows) ? rows : [];
+        renderResults();
+        activateStaticFallback("真实聚类下钻失败，已回退");
+        toast(`真实聚类下钻失败，已回退静态快照：${shortError(error)}`);
+        if (state.results.length) await selectQuestion(state.results[0].key);
+        return;
+      } catch {
+        // Fall through to the user-facing error below.
+      }
+    }
     toast(`聚类下钻失败：${shortError(error)}`);
   }
 }
 
 function sampleClusterQuestion(cluster) {
-  const words = (cluster.keywords || []).join(", ");
-  if (/book|author|writer/i.test(words)) return "示例问题：Who wrote the book that inspired the movie?";
-  if (/city|born|birth/i.test(words)) return "示例问题：Which city is the birthplace of the author?";
-  if (/sport|team|player/i.test(words)) return "示例问题：Which team did the player represent?";
-  return "示例问题：Who is the director of the referenced work?";
+  const sample = safeText(cluster.sample_question).trim();
+  if (sample) return `示例问题：${sample}`;
+  return "点击查看该聚类的样例问题";
 }
 
 async function loadStats() {
+  const runId = ++state.statsRun;
+  if (state.statsAbort) state.statsAbort.abort();
+  state.statsAbort = new AbortController();
   renderLoading(els.stats, 2);
   try {
-    const stats = canUseApi() && state.apiOnline ? await fetchJson("/api/stats") : await delay(demo.stats, 150);
+    const stats = await fetchJson("/api/stats", { controller: state.statsAbort });
+    if (runId !== state.statsRun) return;
     renderStats(stats);
   } catch (error) {
-    renderStats(demo.stats);
-    toast(`统计接口不可用，显示演示统计：${shortError(error)}`);
+    if (error.name === "AbortError") return;
+    if (runId !== state.statsRun) return;
+    try {
+      const stats = await fetchStaticJson("/api/stats");
+      if (runId !== state.statsRun) return;
+      renderStats(stats);
+      if (canUseApi()) activateStaticFallback("真实统计接口不可用，已回退");
+      toast(`真实统计接口不可用，已回退静态快照：${shortError(error)}`);
+    } catch (fallbackError) {
+      if (runId !== state.statsRun) return;
+      renderError(els.stats, "统计接口不可用", shortError(fallbackError));
+      toast(`统计接口不可用：${shortError(fallbackError)}`);
+    }
   }
 }
 
@@ -1008,13 +980,15 @@ function shortError(error) {
 function bindEvents() {
   els.apiForm.addEventListener("submit", async (event) => {
     event.preventDefault();
+    cancelInFlightRequests();
     state.apiBase = normalizeApiBase(els.apiBase.value);
+    state.useStaticFallback = false;
     safeStorageSet(STORAGE_KEY, state.apiBase);
     const online = await checkHealth();
     await runSearch();
     loadClusters();
     loadStats();
-    if (!online) toast("已使用演示数据。请确认云主机 API 使用 HTTPS 并允许 GitHub Pages 跨域访问。");
+    if (!online && canUseApi()) toast("已使用静态快照。请确认云主机 API 使用 HTTPS 并允许 GitHub Pages 跨域访问。");
   });
 
   els.searchForm.addEventListener("submit", runSearch);
@@ -1059,19 +1033,13 @@ function initIcons() {
   }
 }
 
-function init() {
+async function init() {
   els.apiBase.value = state.apiBase;
   bindEvents();
+  await checkHealth();
   runSearch();
   loadClusters();
   loadStats();
-  checkHealth().then(() => {
-    if (state.apiOnline) {
-      runSearch();
-      loadClusters();
-      loadStats();
-    }
-  });
   initIcons();
   window.addEventListener("load", initIcons);
 }

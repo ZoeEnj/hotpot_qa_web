@@ -1,7 +1,15 @@
+.venv/
+venv/
+env/
+__pycache__/
+*.pyc
 backend/.venv/
 backend/__pycache__/
 backend/*.pyc
 backend/.env
+.env
+scripts/__pycache__/
+scripts/*.pyc
 design/
 *.zip
 *.log

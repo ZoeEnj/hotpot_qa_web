@@ -1,0 +1,1 @@
+{"name":"HotpotQA static API snapshot","generated_at":"2026-06-11T06:09:46+00:00","source":"../hotpot_qa/fullwiki/train-00000-of-00002.parquet","api_contract":"compatible with backend/app.py read-only endpoints","files":["health.json","stats.json","clusters.json","search-index.json","paths.json","cluster-questions.json"]}

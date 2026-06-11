@@ -127,7 +127,7 @@ def question_detail(qid):
       split: q.split,
       question: q.question,
       answer: q.answer,
-      answer_doc: answer,
+      answer_doc: null,
       type: q.type,
       level: q.level,
       context_titles: q.context_titles,
@@ -395,11 +395,14 @@ def cluster_questions(cluster_key):
           LIMIT @limit
           RETURN {
             key: q._key,
+            orig_id: q.orig_id,
             question: q.question,
             answer: q.answer,
             type: q.type,
             level: q.level,
-            split: q.split
+            split: q.split,
+            n_context_pages: q.n_context_pages,
+            n_supporting_facts: q.n_supporting_facts
           }
         """
         rows = aql(query, {"cluster_key": cluster_key, "limit": limit})
@@ -413,11 +416,14 @@ def cluster_questions(cluster_key):
       LIMIT @limit
       RETURN {
         key: q._key,
+        orig_id: q.orig_id,
         question: q.question,
         answer: q.answer,
         type: q.type,
         level: q.level,
-        split: q.split
+        split: q.split,
+        n_context_pages: q.n_context_pages,
+        n_supporting_facts: q.n_supporting_facts
       }
     """
     return jsonify(aql(query, {"cluster_key": cluster_key, "limit": limit}))
