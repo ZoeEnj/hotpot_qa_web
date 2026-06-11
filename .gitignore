@@ -2,5 +2,10 @@ backend/.venv/
 backend/__pycache__/
 backend/*.pyc
 backend/.env
+design/
+*.zip
+*.log
+*.pid
+lajitong/
 .DS_Store
 Thumbs.db

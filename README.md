@@ -1,12 +1,9 @@
-# HotpotQA Evidence Workbench
+# HotpotQA
 
-This repository contains the web part of the HotpotQA ArangoDB coursework.
+- `backend/`：部署在华为云主机上的 Flask API。它负责查询 ArangoDB 并返回 JSON 数据。
+- `frontend/`：托管在 GitHub Pages 上的静态前端。它支持搜索、多跳证据路径、简单聚类浏览、统计信息展示和 SVG 图谱可视化。
 
-- `backend/`: Flask API on the Huawei Cloud host. It queries ArangoDB and returns JSON.
-- `frontend/`: static GitHub Pages frontend. It supports search, multi-hop evidence paths, simple cluster browsing, statistics, and SVG graph visualization.
-- `design/`: generated design mockup and implementation screenshots used in the report.
-
-## Backend Quick Start
+## 后端快速启动
 
 ```bash
 cd ~/hotpot_qa_web/backend
@@ -23,25 +20,23 @@ export CORS_ORIGINS="https://zoeenj.github.io"
 python app.py
 ```
 
-Production:
+生产环境运行方式：
 
 ```bash
 gunicorn -w 2 -b 0.0.0.0:5000 app:app
 ```
 
-## Frontend Quick Start
+## 前端快速启动
 
-Edit `frontend/config.js` and set an HTTPS API endpoint:
+编辑 `frontend/config.js`，并设置 HTTPS API 接口地址：
 
 ```js
 window.HOTPOT_API_BASE = "https://<your-api-domain>";
 ```
 
-GitHub Pages is HTTPS. If the backend is only `http://<public-ip>:5000`, browsers will block the request as mixed content. Use Nginx plus a TLS certificate to proxy the Flask service before final deployment.
+通过 GitHub Pages 发布 `frontend/` 目录。本仓库包含 `.github/workflows/pages.yml`，该工作流会将 `frontend` 目录作为 Pages 构建产物上传。
 
-Publish `frontend/` through GitHub Pages. This repository includes `.github/workflows/pages.yml`, which uploads the `frontend` directory as the Pages artifact.
-
-Expected Pages URL:
+访问地址：
 
 ```text
 https://zoeenj.github.io/hotpot_qa_web/
